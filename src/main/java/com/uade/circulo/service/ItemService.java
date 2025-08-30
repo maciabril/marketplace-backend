@@ -45,4 +45,29 @@ public class ItemService {
         // Implement filtering logic based on the filter parameter
         return itemRepository.findAll(); // Placeholder for actual filtering logic
     }
+
+    public List<Item> getAllProducts(String filter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllProducts'");
+    }
+
+    public Item getProductById(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
+    }
+
+    public Item createProduct(Item item) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createProduct'");
+    }
+
+    public Item updateProduct(Long id, Item item) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateProduct'");
+    }
+
+    public boolean deleteProduct(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteProduct'");
+    }
 }

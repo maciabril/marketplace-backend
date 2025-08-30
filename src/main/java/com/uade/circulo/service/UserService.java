@@ -33,5 +33,15 @@ public class UserService {
         user.setPassword(userDetails.getPassword());
         return userRepository.save(user);
     }
+
+    public List<User> findAllUsers() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAllUsers'");
+    }
+
+    public User findUserById(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findUserById'");
+    }
     
 }
