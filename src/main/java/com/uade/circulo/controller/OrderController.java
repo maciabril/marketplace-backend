@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+//import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/action")
@@ -23,10 +23,12 @@ public class OrderController {
     }
 
     @GetMapping("/orders/{id}")
-    public ResponseEntity<Optional<Order>> getOrderById(@PathVariable Long id) {
-        Optional<Order> order = orderService.getOrderById(id);
-        return ResponseEntity.ok(order);
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+        return orderService.getOrderById(id)
+                .map(ResponseEntity::ok)        // devuelve un 200 ok además de lo pedido
+                .orElseGet(() -> ResponseEntity.notFound().build()); // devuelve 404
     }
+
 
     @PostMapping("/orders")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
