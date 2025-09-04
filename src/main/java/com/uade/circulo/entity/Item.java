@@ -22,6 +22,15 @@ public class Item {
     private double price;
     private boolean active;
     private String status;
+    private int stock;
+
+    public int getStock(){
+        return stock;
+    }
+
+    public void setStock(int stock){
+        this.stock = stock;
+    }
 
     public Long getId() {
         return id;
