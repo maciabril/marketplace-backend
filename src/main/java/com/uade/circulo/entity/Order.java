@@ -36,6 +36,17 @@ public class Order {
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
+    @Column(name = "importe_total", nullable = false)
+    private float importeTotal;
+
+    public float getImporteTotal(){
+        return importeTotal;
+    }
+
+    public void setImporteTotal(float importeTotal){
+        this.importeTotal = importeTotal;
+    }
+
     public Long getId() {
         return id;
     }
