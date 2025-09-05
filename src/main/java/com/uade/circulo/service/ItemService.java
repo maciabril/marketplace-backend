@@ -47,9 +47,16 @@ public class ItemService {
 
     }
 
-    public List<Item> filterByPrice(double filter) {
+    public List<Item> filterByPriceRange(double minPrice, double maxPrice) {
+        if (minPrice < 0 || maxPrice < 0) {
+            throw new IllegalArgumentException("El precio no puede ser negativo");
+        }
+        if (minPrice > maxPrice) {
+            throw new IllegalArgumentException("El precio mínimo no puede ser mayor que el máximo");
+        }
 
-        return itemRepository.findAll(); // Placeholder for actual filtering logic
+        return itemRepository.findByPriceBetween(minPrice, maxPrice);
     }
+
 
 }
