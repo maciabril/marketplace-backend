@@ -27,47 +27,29 @@ public class ItemService {
     }
 
     public Item updateItem(Long id, Item itemDetails) {
+
         Item item = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
+        
         item.setName(itemDetails.getName());
         item.setDescription(itemDetails.getDescription());
         item.setPrice(itemDetails.getPrice());
         item.setStatus(itemDetails.getStatus());
+
         return itemRepository.save(item);
+
     }
 
     public void deleteItem(Long id) {
+
         Item item = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
-        // Logic to check if the item is tied to a completed order should be implemented here
+        
         itemRepository.delete(item);
+
     }
 
-    public List<Item> filterItems(String filter) {
-        // Implement filtering logic based on the filter parameter
+    public List<Item> filterByPrice(double filter) {
+
         return itemRepository.findAll(); // Placeholder for actual filtering logic
     }
 
-    public List<Item> getAllProducts(String filter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllProducts'");
-    }
-
-    public Item getProductById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
-    }
-
-    public Item createProduct(Item item) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createProduct'");
-    }
-
-    public Item updateProduct(Long id, Item item) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateProduct'");
-    }
-
-    public boolean deleteProduct(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteProduct'");
-    }
 }

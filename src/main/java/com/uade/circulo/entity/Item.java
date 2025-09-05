@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.uade.circulo.enums.Status;
 
 @Entity
 @Data
@@ -25,9 +26,7 @@ public class Item {
     @Column
     private double price;
     @Column
-    private boolean active;
-    @Column
-    private String status;
+    private Status status;
     @Column
     private int stock;
     @Column
