@@ -39,13 +39,15 @@ public class ItemService {
 
     }
 
-    public void deleteItem(Long id) {
-
-        Item item = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
-        
-        itemRepository.delete(item);
-
+    public boolean deleteItem(Long id) {
+        return itemRepository.findById(id)
+                .map(item -> {
+                    itemRepository.delete(item);
+                    return true;   // se eliminó
+                })
+                .orElse(false);    // no existía
     }
+
 
     public List<Item> filterByPriceRange(double minPrice, double maxPrice) {
         if (minPrice < 0 || maxPrice < 0) {
