@@ -23,7 +23,18 @@ public class UserService {
     }
 
     public User registerUser(User user) {
+        // Evita usuarios duplicados por username
+        Optional<User> existing = userRepository.findByUsername(user.getUsername());
+        if (existing.isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
         return userRepository.save(user);
+    }
+
+    public User login(String username, String password) {
+        // Busca el usuario por username y password
+        return userRepository.findByUsernameAndPassword(username, password)
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
     }
 
     public User updateUser(Long id, User userDetails) {
@@ -35,13 +46,12 @@ public class UserService {
     }
 
     public List<User> findAllUsers() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAllUsers'");
+        return userRepository.findAll();
     }
 
     public User findUserById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findUserById'");
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
     
 }
