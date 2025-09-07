@@ -29,8 +29,6 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // @Column(name = "user_id", nullable = false)
-    // private Long userId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -42,7 +40,6 @@ public class Order {
     @Column(name = "importe_total", nullable = false)
     private float importeTotal;
 
-    // le agregué un atributo user como lo hizo la profesora
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -62,15 +59,6 @@ public class Order {
     public void setId(Long id) {
         this.id = id;
     }
-
-    // lo cambié para que sea como lo hizo la profe
-    // public Long getUserId() {
-    //     return userId;
-    // }
-
-    // public void setUserId(Long userId) {
-    //     this.userId = userId;
-    // }
 
     public Long getUserId() {
         return user != null ? user.getId() : null;
