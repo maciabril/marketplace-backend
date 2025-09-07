@@ -22,20 +22,20 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User registerUser(User user) {
-        // Evita usuarios duplicados por username
-        Optional<User> existing = userRepository.findByUsername(user.getUsername());
-        if (existing.isPresent()) {
-            throw new RuntimeException("Username already exists");
-        }
-        return userRepository.save(user);
-    }
+    // public User registerUser(User user) {
+    //     // Evita usuarios duplicados por username
+    //     Optional<User> existing = userRepository.findByUsername(user.getUsername());
+    //     if (existing.isPresent()) {
+    //         throw new RuntimeException("Username already exists");
+    //     }
+    //     return userRepository.save(user);
+    // }
 
-    public User login(String username, String password) {
-        // Busca el usuario por username y password
-        return userRepository.findByUsernameAndPassword(username, password)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
-    }
+    // public User login(String username, String password) {
+    //     // Busca el usuario por username y password
+    //     return userRepository.findByUsernameAndPassword(username, password)
+    //             .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+    // }
 
     public User updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
