@@ -27,47 +27,38 @@ public class ItemService {
     }
 
     public Item updateItem(Long id, Item itemDetails) {
+
         Item item = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
+        
         item.setName(itemDetails.getName());
         item.setDescription(itemDetails.getDescription());
         item.setPrice(itemDetails.getPrice());
         item.setStatus(itemDetails.getStatus());
+
         return itemRepository.save(item);
+
     }
 
-    public void deleteItem(Long id) {
-        Item item = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
-        // Logic to check if the item is tied to a completed order should be implemented here
-        itemRepository.delete(item);
+    public boolean deleteItem(Long id) {
+        return itemRepository.findById(id)
+                .map(item -> {
+                    itemRepository.delete(item);
+                    return true;   // se eliminó
+                })
+                .orElse(false);    // no existía
     }
 
-    public List<Item> filterItems(String filter) {
-        // Implement filtering logic based on the filter parameter
-        return itemRepository.findAll(); // Placeholder for actual filtering logic
+
+    public List<Item> filterByPriceRange(double minPrice, double maxPrice) {
+        if (minPrice < 0 || maxPrice < 0) {
+            throw new IllegalArgumentException("El precio no puede ser negativo");
+        }
+        if (minPrice > maxPrice) {
+            throw new IllegalArgumentException("El precio mínimo no puede ser mayor que el máximo");
+        }
+
+        return itemRepository.findByPriceBetween(minPrice, maxPrice);
     }
 
-    public List<Item> getAllProducts(String filter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllProducts'");
-    }
 
-    public Item getProductById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
-    }
-
-    public Item createProduct(Item item) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createProduct'");
-    }
-
-    public Item updateProduct(Long id, Item item) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateProduct'");
-    }
-
-    public boolean deleteProduct(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteProduct'");
-    }
 }

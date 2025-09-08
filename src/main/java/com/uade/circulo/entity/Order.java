@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -29,8 +30,6 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -41,6 +40,11 @@ public class Order {
 
     @Column(name = "importe_total", nullable = false)
     private float importeTotal;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
 
     public float getImporteTotal(){
         return importeTotal;
@@ -59,11 +63,11 @@ public class Order {
     }
 
     public Long getUserId() {
-        return userId;
+        return user != null ? user.getId() : null;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserId(User user) {
+        this.user = user;
     }
 
     public List<OrderItem> getItems() {

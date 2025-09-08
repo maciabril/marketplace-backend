@@ -22,26 +22,21 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User registerUser(User user) {
-        return userRepository.save(user);
-    }
-
     public User updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setUsername(userDetails.getUsername());
+        user.setName(userDetails.getName());
         user.setEmail(userDetails.getEmail());
         user.setPassword(userDetails.getPassword());
         return userRepository.save(user);
     }
 
     public List<User> findAllUsers() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAllUsers'");
+        return userRepository.findAll();
     }
 
     public User findUserById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findUserById'");
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
     
 }

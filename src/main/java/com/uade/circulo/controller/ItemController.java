@@ -16,33 +16,34 @@ public class ItemController {
     private ItemService itemService;
 
     @GetMapping("/catalog/products")
-    public ResponseEntity<List<Item>> getAllProducts(
-            @RequestParam(required = false) String filter) {
-        List<Item> items = itemService.getAllProducts(filter);
+    public ResponseEntity<List<Item>> getAllProducts() {
+        List<Item> items = itemService.getAllItems();
         return ResponseEntity.ok(items);
     }
 
+
     @GetMapping("/catalog/products/{id}")
     public ResponseEntity<Item> getProductById(@PathVariable Long id) {
-        Item item = itemService.getProductById(id);
-        return ResponseEntity.ok(item);
+        return itemService.getItemById(id)
+        .map(ResponseEntity::ok)        // devuelve un 200 ok además de lo pedido
+        .orElseGet(() -> ResponseEntity.notFound().build()); // devuelve 404
     }
 
     @PostMapping("/products")
     public ResponseEntity<Item> createProduct(@RequestBody Item item) {
-        Item createdItem = itemService.createProduct(item);
+        Item createdItem = itemService.createItem(item);
         return ResponseEntity.status(201).body(createdItem);
     }
 
     @PutMapping("/products/{id}")
     public ResponseEntity<Item> updateProduct(@PathVariable Long id, @RequestBody Item item) {
-        Item updatedItem = itemService.updateProduct(id, item);
+        Item updatedItem = itemService.updateItem(id, item);
         return ResponseEntity.ok(updatedItem);
     }
 
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        boolean isDeleted = itemService.deleteProduct(id);
+        boolean isDeleted = itemService.deleteItem(id);
         if (isDeleted) {
             return ResponseEntity.noContent().build();
         } else {
