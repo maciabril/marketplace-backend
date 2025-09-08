@@ -1,5 +1,6 @@
 package com.uade.circulo.service;
 
+import com.uade.circulo.entity.Dto.ItemUpdateDto;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +27,14 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public Item updateItem(Long id, Item itemDetails) {
+    public void updateItem(Long id, ItemUpdateDto itemUpdateDto) {
 
         Item item = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
         
-        item.setName(itemDetails.getName());
-        item.setDescription(itemDetails.getDescription());
-        item.setPrice(itemDetails.getPrice());
-        item.setStatus(itemDetails.getStatus());
+        item.setName(itemUpdateDto.getName());
+        item.setDescription(itemUpdateDto.getDescription());
 
-        return itemRepository.save(item);
+        itemRepository.save(item);
 
     }
 
