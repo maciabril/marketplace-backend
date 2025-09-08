@@ -1,6 +1,6 @@
 package com.uade.circulo.controller.auth;
 
-import com.uade.circulo.entity.Role;
+import com.uade.circulo.enums.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +16,7 @@ public class RegisterRequest {
     private String firstname;
     private String lastname;
     private String email;
+    private String name;
     private String password;
     private Role role;
 }

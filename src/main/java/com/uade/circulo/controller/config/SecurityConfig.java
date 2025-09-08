@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.uade.circulo.entity.Role;
+import com.uade.circulo.enums.Role;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
