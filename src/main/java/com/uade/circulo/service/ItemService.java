@@ -31,8 +31,8 @@ public class ItemService {
 
         Item item = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
         
-        item.setName(itemUpdateDto.getName());
-        item.setDescription(itemUpdateDto.getDescription());
+        item.setName( itemUpdateDto.getName()!= null ? itemUpdateDto.getName() : item.getName());
+        item.setDescription(itemUpdateDto.getDescription() != null ?itemUpdateDto.getDescription() : item.getDescription());
 
         itemRepository.save(item);
 
