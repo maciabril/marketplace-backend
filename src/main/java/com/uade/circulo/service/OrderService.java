@@ -2,6 +2,7 @@ package com.uade.circulo.service;
 
 import com.uade.circulo.entity.Order;
 import com.uade.circulo.entity.OrderItem;
+import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
 import com.uade.circulo.repository.OrderRepository;
@@ -60,6 +61,9 @@ public class OrderService {
             orderItem.setOrder(order);
 
             item.setStock(item.getStock() - orderItem.getCantidad());
+            if(item.getStock() == 0) {
+                item.setStatus(Status.SOLD);;
+            }
             itemRepository.save(item);
 
             total += subtotal;
