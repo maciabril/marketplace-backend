@@ -1,5 +1,6 @@
 package com.uade.circulo.controller;
 
+import com.uade.circulo.entity.Dto.ItemUpdateDto;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,9 @@ public class ItemController {
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<Item> updateProduct(@PathVariable Long id, @RequestBody Item item) {
-        Item updatedItem = itemService.updateItem(id, item);
-        return ResponseEntity.ok(updatedItem);
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody ItemUpdateDto itemUpdateDto) {
+         itemService.updateItem(id, itemUpdateDto);
+         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/products/{id}")
