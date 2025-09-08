@@ -38,7 +38,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false, unique = true)
-    private String name;
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -54,6 +54,7 @@ public class User implements UserDetails {
     private List<Order> orders;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @Override
