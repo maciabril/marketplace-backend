@@ -2,6 +2,7 @@ package com.uade.circulo.service;
 
 import com.uade.circulo.entity.Order;
 import com.uade.circulo.entity.OrderItem;
+import com.uade.circulo.entity.exceptions.OutOfStockException;
 import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
@@ -50,7 +51,7 @@ public class OrderService {
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemId));
 
             if (item.getStock() < orderItem.getCantidad()) {
-                throw new RuntimeException("Stock insuficiente para el producto: " + item.getId());
+                throw new OutOfStockException(item.getName());
             }
 
             //Se calcula el subtotal de la orden y se actualiza el subtotal.
