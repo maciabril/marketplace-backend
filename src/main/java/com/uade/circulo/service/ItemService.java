@@ -1,9 +1,9 @@
 package com.uade.circulo.service;
 
-import com.uade.circulo.entity.Dto.ItemDto;
-import com.uade.circulo.entity.Dto.ItemUpdateDto;
 import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
+import com.uade.circulo.entity.dto.ItemDto;
+import com.uade.circulo.entity.dto.ItemUpdateDto;
 import com.uade.circulo.repository.ItemRepository;
 
 import jakarta.transaction.Transactional;
