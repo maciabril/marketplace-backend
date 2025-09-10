@@ -1,4 +1,4 @@
-package com.uade.circulo.entity.dto;
+package com.uade.circulo.entity.dtos;
 
 import com.uade.circulo.enums.Status;
 import lombok.AllArgsConstructor;

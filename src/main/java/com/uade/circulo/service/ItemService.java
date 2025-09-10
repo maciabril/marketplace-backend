@@ -1,7 +1,7 @@
 package com.uade.circulo.service;
 
-import com.uade.circulo.entity.dto.ItemDto;
-import com.uade.circulo.entity.dto.ItemUpdateDto;
+import com.uade.circulo.entity.dtos.ItemDto;
+import com.uade.circulo.entity.dtos.ItemUpdateDto;
 import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
