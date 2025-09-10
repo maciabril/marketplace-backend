@@ -79,6 +79,13 @@ public class ItemService {
             }
             item.setDiscount(discount);
         }
+        if (updateDto.getStock() != null) {
+            int stock = updateDto.getStock();
+            if (stock < 0) {
+                throw new IllegalArgumentException("El stock de un producto no puede ser negativo");
+            }
+            item.setStock(stock);
+        }
 
         itemRepository.save(item);
     }
