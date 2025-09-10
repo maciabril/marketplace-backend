@@ -1,8 +1,8 @@
 package com.uade.circulo.controller;
 
-import com.uade.circulo.entity.Dto.ItemDto;
-import com.uade.circulo.entity.Dto.ItemUpdateDto;
 import com.uade.circulo.entity.Item;
+import com.uade.circulo.entity.dto.ItemDto;
+import com.uade.circulo.entity.dto.ItemUpdateDto;
 import com.uade.circulo.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
