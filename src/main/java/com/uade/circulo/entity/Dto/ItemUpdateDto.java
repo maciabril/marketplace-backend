@@ -14,5 +14,6 @@ public class ItemUpdateDto {
     private String description;
     private Status status; 
     private Integer discount;
+    private Integer stock;
 }
 
