@@ -1,4 +1,4 @@
-package com.uade.circulo.entity.Dto;
+package com.uade.circulo.entity.dto;
 
 import com.uade.circulo.enums.Status;
 
