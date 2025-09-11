@@ -1,5 +1,6 @@
 package com.uade.circulo.entity.dtos;
 
+import com.uade.circulo.enums.Category;
 import com.uade.circulo.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class ItemDto {
     private Status status;
     private int stock;
     private int discount;
+    private Category category;
 }
 
 //todo: falta implementarlo en este archivo el get, no lo borren !! desp lo arreglo, no rompe ni tiene usos AUN atte abirl :p

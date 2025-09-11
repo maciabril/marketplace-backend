@@ -1,5 +1,6 @@
 package com.uade.circulo.entity.dtos;
 
+import com.uade.circulo.enums.Category;
 import com.uade.circulo.enums.Status;
 
 import lombok.AllArgsConstructor;
@@ -15,5 +16,6 @@ public class ItemUpdateDto {
     private Status status; 
     private Integer discount;
     private Integer stock;
+    private Category category;
 }
 

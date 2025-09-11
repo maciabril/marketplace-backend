@@ -31,6 +31,7 @@ public class ItemService {
                     .stock(item.getStock())
                     .discount(item.getDiscount())
                     .price(item.getPrice() * (1 - item.getDiscount() / 100.0)) // precio con descuento
+                    .category(item.getCategory())
                     .build())
             .toList();
     }
@@ -47,6 +48,7 @@ public class ItemService {
                     dto.setStock(item.getStock());
                     dto.setDiscount(item.getDiscount());
                     dto.setPrice(item.getPrice() * (1 - item.getDiscount() / 100.0)); //precio con descuento
+                    dto.setCategory(item.getCategory());
                     return dto;
                 });
     }
