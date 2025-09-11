@@ -81,6 +81,9 @@ public class ItemService {
             }
             item.setDiscount(discount);
         }
+        if (updateDto.getCategory() != null) {
+            item.setCategory(updateDto.getCategory());
+        }
 
         itemRepository.save(item);
     }

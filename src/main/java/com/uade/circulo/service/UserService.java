@@ -1,8 +1,12 @@
 package com.uade.circulo.service;
 
 import com.uade.circulo.entity.User;
+import com.uade.circulo.entity.dtos.UserUpdateDto;
+import com.uade.circulo.enums.Role;
 import com.uade.circulo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +18,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -22,12 +29,37 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User updateUser(Long id, User userDetails) {
+    public void updateUser(Long id, UserUpdateDto userUpdateDto) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setUsername(userDetails.getUsername());
-        user.setEmail(userDetails.getEmail());
-        user.setPassword(userDetails.getPassword());
-        return userRepository.save(user);
+
+        // Solo el admin puede editar cualquier usuario, el user solo el suyo
+        if (currentUser.getRole() != Role.ADMIN && !currentUser.getId().equals(id)) {
+            throw new RuntimeException("No tienes permisos para editar este usuario");
+        }
+
+        // Verifica unicidad de email
+        if (userUpdateDto.getEmail() != null && !userUpdateDto.getEmail().equals(user.getEmail())) {
+            userRepository.findByEmail(userUpdateDto.getEmail())
+                .filter(u -> !u.getId().equals(id))
+                .ifPresent(u -> { throw new RuntimeException("El email ya está en uso por otro usuario"); });
+            user.setEmail(userUpdateDto.getEmail());
+        }
+
+        // Verifica unicidad de username
+        if (userUpdateDto.getName() != null && !userUpdateDto.getName().equals(user.getName())) {
+            userRepository.findAll().stream()
+                .filter(u -> u.getName().equals(userUpdateDto.getName()) && !u.getId().equals(id))
+                .findAny()
+                .ifPresent(u -> { throw new RuntimeException("El username ya está en uso por otro usuario"); });
+            user.setUsername(userUpdateDto.getName());
+        }
+
+        if (userUpdateDto.getPassword() != null && !userUpdateDto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(userUpdateDto.getPassword()));
+        }
+
+        userRepository.save(user);
     }
 
     public List<User> findAllUsers() {

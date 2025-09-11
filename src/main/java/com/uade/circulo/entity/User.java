@@ -62,6 +62,12 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    public String getName() {
+        return username;
+    }
+
+    // Evita que Jackson serialice el método getUsername como "username"
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @Override
     public String getUsername() {
         return email;
