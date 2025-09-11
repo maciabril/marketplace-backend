@@ -12,7 +12,11 @@ import jakarta.transaction.Transactional;
 
 //import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import com.uade.circulo.entity.User;
+import com.uade.circulo.enums.Role;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +35,27 @@ public class OrderService {
     }
 
     public Optional<Order> getOrderById(Long id) {
-        return orderRepository.findById(id);
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<Order> orderOpt = orderRepository.findById(id);
+
+        if (orderOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Order order = orderOpt.get();
+
+        // Si es admin, puede ver cualquier orden
+        if (currentUser.getRole() == Role.ADMIN) {
+            return Optional.of(order);
+        }
+
+        // Si es user, solo puede ver sus propias órdenes
+        if (order.getUser() != null && order.getUser().getId().equals(currentUser.getId())) {
+            return Optional.of(order);
+        }
+
+        // Si no tiene permiso, retorna vacío (puedes lanzar excepción si prefieres)
+        return Optional.empty();
     }
 
     @Transactional
