@@ -6,6 +6,10 @@ import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
 
+import io.jsonwebtoken.io.IOException;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +26,23 @@ public class ItemService {
     
     //todo: modificar price para que sea  precio original y poner discountPrice, que tenga el descuento - ana
     public List<ItemDto> getAllItems() {
-    return itemRepository.findAll().stream()
-            .map(item -> ItemDto.builder()
-                    .id(item.getId())
-                    .name(item.getName())
-                    .description(item.getDescription())
-                    .status(item.getStatus())
-                    .stock(item.getStock())
-                    .discount(item.getDiscount())
-                    .price(item.getPrice() * (1 - item.getDiscount() / 100.0)) // precio con descuento
-                    .category(item.getCategory())
-                    .build())
-            .toList();
+        return itemRepository.findAll().stream()
+                .filter(item -> item.getStock() > 0) 
+                .map(item -> ItemDto.builder()
+                        .id(item.getId())
+                        .name(item.getName())
+                        .description(item.getDescription())
+                        .status(item.getStatus())
+                        .stock(item.getStock())
+                        .discount(item.getDiscount())
+                        .price(item.getPrice() * (1 - item.getDiscount() / 100.0)) // precio con descuento
+                        .category(item.getCategory())
+                        .imageName(item.getImageName())
+                        .imageData(item.getImageData())
+                        .build())
+                .toList();
     }
+
 
     //todo: modificar price para que sea  precio original y poner discountPrice, que tenga el descuento - ana
     public Optional<ItemDto> getItemById(Long id) {
@@ -49,12 +57,16 @@ public class ItemService {
                     dto.setDiscount(item.getDiscount());
                     dto.setPrice(item.getPrice() * (1 - item.getDiscount() / 100.0)); //precio con descuento
                     dto.setCategory(item.getCategory());
+                    dto.setImageName(item.getImageName());
+                    dto.setImageData(item.getImageData());
                     return dto;
                 });
     }
 
 
-    public Item createItem(Item item) {
+    public Item createItem(Item item, MultipartFile file) throws java.io.IOException{
+        item.setImageName(file.getOriginalFilename());
+        item.setImageData(file.getBytes());
         return itemRepository.save(item);
     }
 
@@ -83,6 +95,10 @@ public class ItemService {
         }
         if (updateDto.getCategory() != null) {
             item.setCategory(updateDto.getCategory());
+        }
+
+        if (updateDto.getPrice() != null) {
+            item.setPrice(updateDto.getPrice());
         }
 
         itemRepository.save(item);
