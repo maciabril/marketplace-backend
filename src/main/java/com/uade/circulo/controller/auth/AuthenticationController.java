@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
+
     private final AuthenticationService service;
 
     @PostMapping("/register")

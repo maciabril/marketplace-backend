@@ -2,12 +2,16 @@ package com.uade.circulo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.uade.circulo.enums.Category;
 import com.uade.circulo.enums.Status;
 
 @Entity
@@ -31,5 +35,8 @@ public class Item {
     private int stock;
     @Column
     private int discount;
+    @Column
+    private Category category;
+
 
 }

@@ -2,6 +2,8 @@ package com.uade.circulo.service;
 
 import com.uade.circulo.entity.Order;
 import com.uade.circulo.entity.OrderItem;
+import com.uade.circulo.entity.exceptions.OutOfStockException;
+import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
 import com.uade.circulo.repository.OrderRepository;
@@ -24,7 +26,6 @@ public class OrderService {
     @Autowired
     private ItemRepository itemRepository;
 
-    //este está correcto, pero se le puede agregar paginado si es requerido. (preguntar)
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
@@ -40,7 +41,7 @@ public class OrderService {
             throw new IllegalArgumentException("La orden debe contener al menos un producto");
         }
 
-        float total = 0.0f;
+        double total = 0.0;
 
         // Verificar que cada item exista y esté en stock.
         for (OrderItem orderItem : order.getItems()) {
@@ -49,17 +50,22 @@ public class OrderService {
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemId));
 
             if (item.getStock() < orderItem.getCantidad()) {
-                throw new RuntimeException("Stock insuficiente para el producto: " + item.getId());
+                throw new OutOfStockException(item.getName());
             }
 
             //Se calcula el subtotal de la orden y se actualiza el subtotal.
-            double precioUnitario = item.getPrice();
+            double precioUnitario = item.getPrice() * (1 - item.getDiscount() / 100.0); //con descuento
             double subtotal = precioUnitario * orderItem.getCantidad();
             orderItem.setPrecioUnitario(precioUnitario);
             orderItem.setSubtotal(subtotal);
             orderItem.setOrder(order);
 
+            orderItem.setItem(item);
+
             item.setStock(item.getStock() - orderItem.getCantidad());
+            if(item.getStock() == 0) {
+                item.setStatus(Status.SOLD);;
+            }
             itemRepository.save(item);
 
             total += subtotal;
@@ -67,7 +73,7 @@ public class OrderService {
 
         //Pasar el total y actualizar el estado de la orden
         order.setOrderStatus(Order.OrderStatus.PENDIENTE);
-        order.setImporteTotal(total); // suponiendo que agregaste atributo total en Order
+        order.setImporteTotal(total); 
 
         // Guardar la orden en base.
         return orderRepository.save(order);
