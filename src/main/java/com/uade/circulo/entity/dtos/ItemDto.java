@@ -22,4 +22,3 @@ public class ItemDto {
     private Category category;
 }
 
-//todo: falta implementarlo en este archivo el get, no lo borren !! desp lo arreglo, no rompe ni tiene usos AUN atte abirl :p

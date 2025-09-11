@@ -6,6 +6,10 @@ import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
 
+import io.jsonwebtoken.io.IOException;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +60,9 @@ public class ItemService {
     }
 
 
-    public Item createItem(Item item) {
+    public Item createItem(Item item, MultipartFile file) throws java.io.IOException{
+        item.setImageName(file.getOriginalFilename());
+        item.setImageData(file.getBytes());
         return itemRepository.save(item);
     }
 
