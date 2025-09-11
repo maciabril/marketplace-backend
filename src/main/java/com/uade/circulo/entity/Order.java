@@ -39,18 +39,18 @@ public class Order {
     private OrderStatus orderStatus;
 
     @Column(name = "importe_total", nullable = false)
-    private float importeTotal;
+    private double importeTotal;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
 
-    public float getImporteTotal(){
+    public double getImporteTotal(){
         return importeTotal;
     }
 
-    public void setImporteTotal(float importeTotal){
+    public void setImporteTotal(double importeTotal){
         this.importeTotal = importeTotal;
     }
 
