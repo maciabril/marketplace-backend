@@ -1,6 +1,7 @@
 package com.uade.circulo.controller;
 
 import com.uade.circulo.entity.User;
+import com.uade.circulo.entity.dtos.UserDto;
 import com.uade.circulo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,13 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @PutMapping("/users/{id}/password")
+    public ResponseEntity<User> updatePassword(@PathVariable Long id,
+                                               @RequestBody UserDto userDto) {
+        User updatedUser = userService.updatePassword(id, userDto.getPassword());
+        return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/users/{id}")
