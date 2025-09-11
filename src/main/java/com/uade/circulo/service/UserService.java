@@ -37,9 +37,23 @@ public class UserService {
             throw new RuntimeException("No tienes permisos para editar este usuario");
         }
 
-        // Actualiza solo los campos permitidos
-        if (userDetails.getEmail() != null) user.setEmail(userDetails.getEmail());
-        if (userDetails.getName() != null) user.setUsername(userDetails.getName());
+        // Verifica unicidad de email
+        if (userDetails.getEmail() != null && !userDetails.getEmail().equals(user.getEmail())) {
+            userRepository.findByEmail(userDetails.getEmail())
+                .filter(u -> !u.getId().equals(id))
+                .ifPresent(u -> { throw new RuntimeException("El email ya está en uso por otro usuario"); });
+            user.setEmail(userDetails.getEmail());
+        }
+
+        // Verifica unicidad de username
+        if (userDetails.getName() != null && !userDetails.getName().equals(user.getName())) {
+            userRepository.findAll().stream()
+                .filter(u -> u.getName().equals(userDetails.getName()) && !u.getId().equals(id))
+                .findAny()
+                .ifPresent(u -> { throw new RuntimeException("El username ya está en uso por otro usuario"); });
+            user.setUsername(userDetails.getName());
+        }
+
         if (userDetails.getPassword() != null && !userDetails.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
         }
