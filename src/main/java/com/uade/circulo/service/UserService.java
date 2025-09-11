@@ -1,6 +1,7 @@
 package com.uade.circulo.service;
 
 import com.uade.circulo.entity.User;
+import com.uade.circulo.entity.dtos.UserUpdateDto;
 import com.uade.circulo.enums.Role;
 import com.uade.circulo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User updateUser(Long id, User userDetails) {
+    public void updateUser(Long id, UserUpdateDto userUpdateDto) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -38,27 +39,27 @@ public class UserService {
         }
 
         // Verifica unicidad de email
-        if (userDetails.getEmail() != null && !userDetails.getEmail().equals(user.getEmail())) {
-            userRepository.findByEmail(userDetails.getEmail())
+        if (userUpdateDto.getEmail() != null && !userUpdateDto.getEmail().equals(user.getEmail())) {
+            userRepository.findByEmail(userUpdateDto.getEmail())
                 .filter(u -> !u.getId().equals(id))
                 .ifPresent(u -> { throw new RuntimeException("El email ya está en uso por otro usuario"); });
-            user.setEmail(userDetails.getEmail());
+            user.setEmail(userUpdateDto.getEmail());
         }
 
         // Verifica unicidad de username
-        if (userDetails.getName() != null && !userDetails.getName().equals(user.getName())) {
+        if (userUpdateDto.getName() != null && !userUpdateDto.getName().equals(user.getName())) {
             userRepository.findAll().stream()
-                .filter(u -> u.getName().equals(userDetails.getName()) && !u.getId().equals(id))
+                .filter(u -> u.getName().equals(userUpdateDto.getName()) && !u.getId().equals(id))
                 .findAny()
                 .ifPresent(u -> { throw new RuntimeException("El username ya está en uso por otro usuario"); });
-            user.setUsername(userDetails.getName());
+            user.setUsername(userUpdateDto.getName());
         }
 
-        if (userDetails.getPassword() != null && !userDetails.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+        if (userUpdateDto.getPassword() != null && !userUpdateDto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(userUpdateDto.getPassword()));
         }
 
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public List<User> findAllUsers() {
