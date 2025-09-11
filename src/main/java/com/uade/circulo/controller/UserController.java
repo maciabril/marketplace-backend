@@ -1,6 +1,7 @@
 package com.uade.circulo.controller;
 
 import com.uade.circulo.entity.User;
+import com.uade.circulo.entity.dtos.UserUpdateDto;
 import com.uade.circulo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +29,8 @@ public class UserController {
     }
 
     @PutMapping("/users/update/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
-        User updatedUser = userService.updateUser(id, userDetails);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdateDto userUpdateDto) {
+        userService.updateUser(id, userUpdateDto);
+        return ResponseEntity.ok().build();
     }
 }
