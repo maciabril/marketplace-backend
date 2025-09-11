@@ -22,19 +22,21 @@ public class ItemService {
     
     //todo: modificar price para que sea  precio original y poner discountPrice, que tenga el descuento - ana
     public List<ItemDto> getAllItems() {
-    return itemRepository.findAll().stream()
-            .map(item -> ItemDto.builder()
-                    .id(item.getId())
-                    .name(item.getName())
-                    .description(item.getDescription())
-                    .status(item.getStatus())
-                    .stock(item.getStock())
-                    .discount(item.getDiscount())
-                    .price(item.getPrice() * (1 - item.getDiscount() / 100.0)) // precio con descuento
-                    .category(item.getCategory())
-                    .build())
-            .toList();
+        return itemRepository.findAll().stream()
+                .filter(item -> item.getStock() > 0) // 👈 Filtra los que tienen stock mayor a 0
+                .map(item -> ItemDto.builder()
+                        .id(item.getId())
+                        .name(item.getName())
+                        .description(item.getDescription())
+                        .status(item.getStatus())
+                        .stock(item.getStock())
+                        .discount(item.getDiscount())
+                        .price(item.getPrice() * (1 - item.getDiscount() / 100.0)) // precio con descuento
+                        .category(item.getCategory())
+                        .build())
+                .toList();
     }
+
 
     //todo: modificar price para que sea  precio original y poner discountPrice, que tenga el descuento - ana
     public Optional<ItemDto> getItemById(Long id) {
