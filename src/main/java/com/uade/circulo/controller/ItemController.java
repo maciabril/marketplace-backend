@@ -28,13 +28,12 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
-
     @GetMapping("/catalog/products/{id}")
     public ResponseEntity<ItemDto> getItemById(@PathVariable Long id) {
-        return itemService.getItemById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        ItemDto item = itemService.getItemById(id);
+        return ResponseEntity.ok(item);
     }
+
 
     @PostMapping("/products")
     public ResponseEntity<String> createProduct(@ModelAttribute Item item,

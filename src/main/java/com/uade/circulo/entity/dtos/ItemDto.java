@@ -16,7 +16,8 @@ public class ItemDto {
     private Long id;
     private String name;
     private String description;
-    private double price; //precio con descuento
+    private double discountedPrice; 
+    private double price; 
     private Status status;
     private int stock;
     private int discount;

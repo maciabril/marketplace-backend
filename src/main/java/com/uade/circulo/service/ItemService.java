@@ -2,11 +2,10 @@ package com.uade.circulo.service;
 
 import com.uade.circulo.entity.dtos.ItemDto;
 import com.uade.circulo.entity.dtos.ItemUpdateDto;
-import com.uade.circulo.enums.Status;
+import com.uade.circulo.entity.exceptions.ItemNotFoundException;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
 
-import io.jsonwebtoken.io.IOException;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ItemService {
@@ -24,28 +22,40 @@ public class ItemService {
     @Autowired
     private ItemRepository itemRepository;
     
-    //todo: modificar price para que sea  precio original y poner discountPrice, que tenga el descuento - ana
     public List<ItemDto> getAllItems() {
-        return itemRepository.findAll().stream()
-                .filter(item -> item.getStock() > 0) 
-                .map(item -> ItemDto.builder()
-                        .id(item.getId())
-                        .name(item.getName())
-                        .description(item.getDescription())
-                        .status(item.getStatus())
-                        .stock(item.getStock())
-                        .discount(item.getDiscount())
-                        .price(item.getPrice() * (1 - item.getDiscount() / 100.0)) // precio con descuento
-                        .category(item.getCategory())
-                        .imageName(item.getImageName())
-                        .imageData(item.getImageData())
-                        .build())
+        List<ItemDto> items = itemRepository.findAll().stream()
+                .filter(item -> item.getStock() > 0)
+                .map(item -> {
+                    ItemDto.ItemDtoBuilder builder = ItemDto.builder()
+                            .id(item.getId())
+                            .name(item.getName())
+                            .description(item.getDescription())
+                            .status(item.getStatus())
+                            .stock(item.getStock())
+                            .price(item.getPrice())
+                            .category(item.getCategory())
+                            .imageName(item.getImageName())
+                            .imageData(item.getImageData());
+
+                    if (item.getDiscount() !=  0) {
+                        builder.discount(item.getDiscount());
+                        builder.discountedPrice(item.getPrice() * (1 - item.getDiscount() / 100.0));
+                    }
+
+                    return builder.build();
+                })
                 .toList();
+
+        if (items.isEmpty()) {
+            throw new RuntimeException("No hay items disponibles");
+        }
+
+        return items;
     }
 
 
-    //todo: modificar price para que sea  precio original y poner discountPrice, que tenga el descuento - ana
-    public Optional<ItemDto> getItemById(Long id) {
+
+    public ItemDto getItemById(Long id) {
         return itemRepository.findById(id)
                 .map(item -> {
                     ItemDto dto = new ItemDto();
@@ -54,13 +64,19 @@ public class ItemService {
                     dto.setDescription(item.getDescription());
                     dto.setStatus(item.getStatus());
                     dto.setStock(item.getStock());
-                    dto.setDiscount(item.getDiscount());
-                    dto.setPrice(item.getPrice() * (1 - item.getDiscount() / 100.0)); //precio con descuento
+                    dto.setPrice(item.getPrice());
                     dto.setCategory(item.getCategory());
                     dto.setImageName(item.getImageName());
                     dto.setImageData(item.getImageData());
+
+                    if (item.getDiscount() !=  0) {
+                        dto.setDiscount(item.getDiscount());
+                        dto.setDiscountedPrice(item.getPrice() * (1 - item.getDiscount() / 100.0));
+                    }
+
                     return dto;
-                });
+                })
+                .orElseThrow(() -> new ItemNotFoundException(id));
     }
 
 
