@@ -24,10 +24,10 @@ public class OrderController {
 
     @GetMapping("/orders/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        return orderService.getOrderById(id)
-                .map(ResponseEntity::ok)        // devuelve un 200 ok además de lo pedido
-                .orElseGet(() -> ResponseEntity.notFound().build()); // devuelve 404
+        Order order = orderService.getOrderById(id);
+        return ResponseEntity.ok(order);
     }
+
 
 
     @PostMapping("/orders")

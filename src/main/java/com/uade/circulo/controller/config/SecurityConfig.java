@@ -42,7 +42,7 @@ public class SecurityConfig {
                                         .requestMatchers(HttpMethod.DELETE, "/api/item/products/{id}").hasAuthority(Role.ADMIN.name()) // borrar producto
 
                                         // Órdenes
-                                        .requestMatchers(HttpMethod.GET, "/api/action/orders").hasAuthority(Role.ADMIN.name()) // ver todas las órdenes
+                                        .requestMatchers(HttpMethod.GET, "/api/action/orders").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name()) // ver todas las órdenes
                                         .requestMatchers(HttpMethod.POST, "/api/action/orders").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name()) // crear orden
                                         .requestMatchers(HttpMethod.GET, "/api/action/orders/{id}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name()) // ver orden por id
 
