@@ -2,7 +2,6 @@ package com.uade.circulo.service;
 
 import com.uade.circulo.entity.Order;
 import com.uade.circulo.entity.OrderItem;
-import com.uade.circulo.entity.exceptions.OutOfStockException;
 import com.uade.circulo.enums.Status;
 import com.uade.circulo.entity.Item;
 import com.uade.circulo.repository.ItemRepository;
@@ -16,10 +15,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.uade.circulo.entity.User;
+import com.uade.circulo.entity.exceptions.OrderAccessDeniedException;
+import com.uade.circulo.entity.exceptions.OrderNotFoundException;
+import com.uade.circulo.entity.exceptions.OutOfStockException;
 import com.uade.circulo.enums.Role;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -31,35 +32,54 @@ public class OrderService {
     private ItemRepository itemRepository;
 
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<Order> orders;
+
+        if (currentUser.getRole() == Role.ADMIN) {
+            orders = orderRepository.findAll();
+        } else {
+            orders = orderRepository.findByUser_Id(currentUser.getId());
+        }
+
+        if (orders.isEmpty()) {
+            throw new OrderNotFoundException("No hay órdenes disponibles");
+        }
+
+        return orders;
     }
 
-    public Optional<Order> getOrderById(Long id) {
+
+    public Order getOrderById(Long id) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<Order> orderOpt = orderRepository.findById(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(id));
 
-        if (orderOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Order order = orderOpt.get();
-
-        // Si es admin, puede ver cualquier orden
         if (currentUser.getRole() == Role.ADMIN) {
-            return Optional.of(order);
+            return order; // si es admin puede ver cualquier orden
         }
 
-        // Si es user, solo puede ver sus propias órdenes
         if (order.getUser() != null && order.getUser().getId().equals(currentUser.getId())) {
-            return Optional.of(order);
+            return order; // un usuario puede ver las ordenes que él hizo
         }
 
-        // Si no tiene permiso, retorna vacío (puedes lanzar excepción si prefieres)
-        return Optional.empty();
+        throw new OrderAccessDeniedException(id); // usuario no autorizado
     }
 
     @Transactional
     public Order createOrder(Order order) {
+        
+        // Validar usuario autenticado y que este no sea admin.
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (currentUser.getRole() == Role.ADMIN) {
+            throw new OrderAccessDeniedException("Usuario vendedor no puede crear órdenes.");
+        }
+
+        //Validar que el usuario solo pueda crear órdenes a su nombre
+        if (order.getUser() == null || !order.getUser().getId().equals(currentUser.getId())) {
+            throw new OrderAccessDeniedException("No puede crear una orden para otro usuario.");
+        }
+        
         // Validar Stock
         if (order.getItems() == null || order.getItems().isEmpty()) {
             throw new IllegalArgumentException("La orden debe contener al menos un producto");
