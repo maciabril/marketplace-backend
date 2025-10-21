@@ -18,5 +18,8 @@ public class AuthenticationResponse {
     private String accessToken;
 
     @JsonProperty("role")
-    private Role role; //TODO DEVUELVE NULL
+    private Role role; 
+
+    @JsonProperty("id")
+    private Long id;
 }
