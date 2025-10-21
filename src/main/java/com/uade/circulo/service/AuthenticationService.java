@@ -11,6 +11,7 @@ import com.uade.circulo.controller.auth.RegisterRequest;
 import com.uade.circulo.controller.config.JwtService;
 import com.uade.circulo.entity.User;
 import com.uade.circulo.repository.UserRepository;
+import com.uade.circulo.enums.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +30,7 @@ public class AuthenticationService {
                                 .email(request.getEmail())
                                 .username(request.getUsername())
                                 .password(passwordEncoder.encode(request.getPassword()))
-                                .role(request.getRole())
+                                .role(Role.USER)
                                 .build();
 
                 repository.save(user);
