@@ -1,145 +1,103 @@
 package com.uade.circulo.service;
 
+import com.uade.circulo.entity.Item;
 import com.uade.circulo.entity.dtos.ItemDto;
 import com.uade.circulo.entity.dtos.ItemUpdateDto;
 import com.uade.circulo.entity.exceptions.ItemNotFoundException;
-import com.uade.circulo.entity.Item;
+import com.uade.circulo.enums.Category;
+import com.uade.circulo.enums.Status;
 import com.uade.circulo.repository.ItemRepository;
-
-
-import org.springframework.web.multipart.MultipartFile;
-
-import jakarta.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ItemService {
 
-    @Autowired
-    private ItemRepository itemRepository;
-    
-    public List<ItemDto> getAllItems() {
-        List<ItemDto> items = itemRepository.findAll().stream()
-                .filter(item -> item.getStock() > 0)
-                .map(item -> {
-                    ItemDto.ItemDtoBuilder builder = ItemDto.builder()
-                            .id(item.getId())
-                            .name(item.getName())
-                            .description(item.getDescription())
-                            .status(item.getStatus())
-                            .stock(item.getStock())
-                            .price(item.getPrice())
-                            .category(item.getCategory())
-                            .imageName(item.getImageName())
-                            .imageData(item.getImageData());
+    private final ItemRepository itemRepository;
 
-                    if (item.getDiscount() !=  0) {
-                        builder.discount(item.getDiscount());
-                        builder.discountedPrice(item.getPrice() * (1 - item.getDiscount() / 100.0));
-                    }
+    // NUEVO MÉTODO: Búsqueda con filtros y paginación
+    public Page<Item> getItemsWithFilters(String name,
+                                          Category category,
+                                          Double minPrice,
+                                          Double maxPrice,
+                                          int page,
+                                          int size,
+                                          String sortBy,
+                                          String sortDirection) {
 
-                    return builder.build();
-                })
-                .toList();
+        // Configurar ordenamiento
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
 
-        if (items.isEmpty()) {
-            throw new RuntimeException("No hay items disponibles");
-        }
+        // Crear objeto Pageable (página, tamaño, ordenamiento)
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        return items;
+        // Llamar al repositorio con filtros
+        return itemRepository.findByFilters(
+                name,
+                category,
+                minPrice,
+                maxPrice,
+                Status.PUBLISHED,
+                pageable
+        );
     }
 
+    // MÉTODOS EXISTENTES (no los toques)
 
-
-    public ItemDto getItemById(Long id) {
-        return itemRepository.findById(id)
-                .map(item -> {
-                    ItemDto dto = new ItemDto();
-                    dto.setId(item.getId());
-                    dto.setName(item.getName());
-                    dto.setDescription(item.getDescription());
-                    dto.setStatus(item.getStatus());
-                    dto.setStock(item.getStock());
-                    dto.setPrice(item.getPrice());
-                    dto.setCategory(item.getCategory());
-                    dto.setImageName(item.getImageName());
-                    dto.setImageData(item.getImageData());
-
-                    if (item.getDiscount() !=  0) {
-                        dto.setDiscount(item.getDiscount());
-                        dto.setDiscountedPrice(item.getPrice() * (1 - item.getDiscount() / 100.0));
-                    }
-
-                    return dto;
-                })
-                .orElseThrow(() -> new ItemNotFoundException(id));
+    public List<Item> getAllItems() {
+        return itemRepository.findAll();
     }
 
+    public Optional<Item> getItemById(Long id) {
+        return itemRepository.findById(id);
+    }
 
-    public Item createItem(Item item, MultipartFile file) throws java.io.IOException{
-        item.setImageName(file.getOriginalFilename());
-        item.setImageData(file.getBytes());
+    public Item createItem(ItemDto itemDto) {
+        Item item = new Item();
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setPrice(itemDto.getPrice());
+        item.setStatus(itemDto.getStatus());
+        item.setStock(itemDto.getStock());
+        item.setDiscount(itemDto.getDiscount());
+        item.setCategory(itemDto.getCategory());
+        
         return itemRepository.save(item);
     }
 
-    @Transactional
-    public void updateItem(Long itemId, ItemUpdateDto updateDto) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item no encontrado con ID: " + itemId));
+    public Item updateItem(Long id, ItemUpdateDto itemUpdateDto) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new ItemNotFoundException(id));
 
-        if (updateDto.getName() != null) {
-            item.setName(updateDto.getName());
-        }
+        if (itemUpdateDto.getName() != null) item.setName(itemUpdateDto.getName());
+        if (itemUpdateDto.getDescription() != null) item.setDescription(itemUpdateDto.getDescription());
+        if (itemUpdateDto.getPrice() != null) item.setPrice(itemUpdateDto.getPrice());
+        if (itemUpdateDto.getStatus() != null) item.setStatus(itemUpdateDto.getStatus());
+        if (itemUpdateDto.getStock() != null) item.setStock(itemUpdateDto.getStock());
+        if (itemUpdateDto.getDiscount() != null) item.setDiscount(itemUpdateDto.getDiscount());
+        if (itemUpdateDto.getCategory() != null) item.setCategory(itemUpdateDto.getCategory());
 
-        if (updateDto.getDescription() != null) {
-            item.setDescription(updateDto.getDescription());
-        }
-
-        if (updateDto.getStatus() != null) {
-            item.setStatus(updateDto.getStatus());
-        }
-        if (updateDto.getDiscount() != null) {
-          int discount = updateDto.getDiscount();
-            if (discount < 0 || discount > 100) {
-                throw new IllegalArgumentException("El descuento debe estar entre 0 y 100");
-            }
-            item.setDiscount(discount);
-        }
-        if (updateDto.getCategory() != null) {
-            item.setCategory(updateDto.getCategory());
-        }
-
-        if (updateDto.getPrice() != null) {
-            item.setPrice(updateDto.getPrice());
-        }
-
-        itemRepository.save(item);
+        return itemRepository.save(item);
     }
 
-
-    public boolean deleteItem(Long id) {
-        return itemRepository.findById(id)
-                .map(item -> {
-                    itemRepository.delete(item);
-                    return true;   // se eliminó
-                })
-                .orElse(false);    // no existía
+    public void deleteItem(Long id) {
+        if (!itemRepository.existsById(id)) {
+            throw new ItemNotFoundException(id);
+        }
+        itemRepository.deleteById(id);
     }
 
-
-    public List<Item> filterByPriceRange(double minPrice, double maxPrice) {
-        if (minPrice < 0 || maxPrice < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
-        }
-        if (minPrice > maxPrice) {
-            throw new IllegalArgumentException("El precio mínimo no puede ser mayor que el máximo");
-        }
-
+    public List<Item> getItemsByPriceRange(Double minPrice, Double maxPrice) {
         return itemRepository.findByPriceBetween(minPrice, maxPrice);
     }
-
 }

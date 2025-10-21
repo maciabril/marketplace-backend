@@ -38,6 +38,7 @@ public class SecurityConfig {
                         // Catálogo de productos (público)
                         .requestMatchers(HttpMethod.GET, "/api/item/catalog/products").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/item/catalog/products/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/item/catalog/products/search").permitAll() // AGREGAR ESTA LÍNEA
 
                         // Productos (solo admin/vendedor)
                         .requestMatchers(HttpMethod.POST, "/api/item/products").hasAuthority(Role.ADMIN.name()) // crear producto
