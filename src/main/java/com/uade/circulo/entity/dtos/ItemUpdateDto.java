@@ -18,5 +18,7 @@ public class ItemUpdateDto {
     private Integer discount;
     private Integer stock;
     private Category category;
+    private String imageName;
+    private String imageData;
 }
 

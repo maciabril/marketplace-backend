@@ -86,6 +86,8 @@ public class ItemService {
         if (itemUpdateDto.getStock() != null) item.setStock(itemUpdateDto.getStock());
         if (itemUpdateDto.getDiscount() != null) item.setDiscount(itemUpdateDto.getDiscount());
         if (itemUpdateDto.getCategory() != null) item.setCategory(itemUpdateDto.getCategory());
+        if (itemUpdateDto.getImageName() != null) item.setImageName(itemUpdateDto.getImageName());
+        if (itemUpdateDto.getImageData() != null) item.setImageData(itemUpdateDto.getImageData());
 
         return itemRepository.save(item);
     }
