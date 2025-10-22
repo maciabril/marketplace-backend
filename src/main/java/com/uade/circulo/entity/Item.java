@@ -39,8 +39,8 @@ public class Item {
     @Column
     private String imageName;
     @Lob
-    @Column
-    private byte[] imageData;
+    @Column(columnDefinition = "LONGTEXT")
+    private String imageData;
 
 
 }

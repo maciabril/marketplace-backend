@@ -23,6 +23,6 @@ public class ItemDto {
     private int discount;
     private Category category;
     private String imageName;
-    private byte[] imageData;
+    private String imageData;
 }
 
