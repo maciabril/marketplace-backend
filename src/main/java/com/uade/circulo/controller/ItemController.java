@@ -20,13 +20,14 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    // NUEVO ENDPOINT: Búsqueda con filtros y paginación
     @GetMapping("/catalog/products/search")
     public ResponseEntity<Page<Item>> searchProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Boolean hasDiscount,
+            @RequestParam(required = false) Boolean inStock,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -37,6 +38,8 @@ public class ItemController {
             category, 
             minPrice, 
             maxPrice, 
+            hasDiscount,
+            inStock,
             page, 
             size, 
             sortBy, 
@@ -45,8 +48,6 @@ public class ItemController {
         
         return ResponseEntity.ok(items);
     }
-
-    // ENDPOINTS EXISTENTES (no los toques)
 
     @GetMapping("/catalog/products")
     public ResponseEntity<List<Item>> getAllItems() {

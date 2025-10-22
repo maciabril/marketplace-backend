@@ -23,36 +23,34 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
-    // NUEVO MÉTODO: Búsqueda con filtros y paginación
-    public Page<Item> getItemsWithFilters(String name,
-                                          Category category,
-                                          Double minPrice,
+    public Page<Item> getItemsWithFilters(String name, 
+                                          Category category, 
+                                          Double minPrice, 
                                           Double maxPrice,
-                                          int page,
+                                          Boolean hasDiscount,
+                                          Boolean inStock,
+                                          int page, 
                                           int size,
                                           String sortBy,
                                           String sortDirection) {
-
-        // Configurar ordenamiento
-        Sort sort = sortDirection.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-
-        // Crear objeto Pageable (página, tamaño, ordenamiento)
+        
+        Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? Sort.by(sortBy).descending() 
+            : Sort.by(sortBy).ascending();
+        
         Pageable pageable = PageRequest.of(page, size, sort);
-
-        // Llamar al repositorio con filtros
+        
         return itemRepository.findByFilters(
-                name,
-                category,
-                minPrice,
-                maxPrice,
-                Status.PUBLISHED,
-                pageable
+            name, 
+            category, 
+            minPrice, 
+            maxPrice, 
+            hasDiscount,
+            inStock,
+            Status.PUBLISHED, 
+            pageable
         );
     }
-
-    // MÉTODOS EXISTENTES (no los toques)
 
     public List<Item> getAllItems() {
         return itemRepository.findAll();
