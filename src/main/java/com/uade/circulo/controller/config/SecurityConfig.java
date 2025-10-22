@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/action/orders").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name()) // ver todas las órdenes
                         .requestMatchers(HttpMethod.POST, "/api/action/orders").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name()) // crear orden
                         .requestMatchers(HttpMethod.GET, "/api/action/orders/{id}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name()) // ver orden por id
+                        .requestMatchers(HttpMethod.PUT, "/api/action/orders/{id}/status").hasAuthority(Role.ADMIN.name()) // cambiar estado de orden (solo admin)
 
                         // Usuarios
                         .requestMatchers(HttpMethod.GET, "/api/user/users").hasAuthority(Role.ADMIN.name()) // ver todos los usuarios

@@ -5,6 +5,10 @@ import com.uade.circulo.entity.dtos.UserUpdateDto;
 import com.uade.circulo.enums.Role;
 import com.uade.circulo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,8 +25,13 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(int page, int size, String sortBy, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? Sort.by(sortBy).descending() 
+            : Sort.by(sortBy).ascending();
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return userRepository.findAll(pageable);
     }
 
     public Optional<User> getUserById(Long id) {
@@ -68,6 +77,12 @@ public class UserService {
 
     public User findUserById(Long id) {
         return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User getCurrentUserProfile() {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
     

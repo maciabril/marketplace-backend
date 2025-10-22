@@ -11,6 +11,10 @@ import jakarta.transaction.Transactional;
 
 //import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +23,9 @@ import com.uade.circulo.entity.exceptions.OrderAccessDeniedException;
 import com.uade.circulo.entity.exceptions.OrderNotFoundException;
 import com.uade.circulo.entity.exceptions.OutOfStockException;
 import com.uade.circulo.enums.Role;
+import com.uade.circulo.enums.OrderStatus;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class OrderService {
@@ -31,19 +36,21 @@ public class OrderService {
     @Autowired
     private ItemRepository itemRepository;
 
-    public List<Order> getAllOrders() {
+    public Page<Order> getAllOrders(int page, int size, String sortBy, String sortDirection) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        List<Order> orders;
+        Sort sort = sortDirection.equalsIgnoreCase("asc") 
+            ? Sort.by(sortBy).ascending() 
+            : Sort.by(sortBy).descending();
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Order> orders;
 
         if (currentUser.getRole() == Role.ADMIN) {
-            orders = orderRepository.findAll();
+            orders = orderRepository.findAll(pageable);
         } else {
-            orders = orderRepository.findByUser_Id(currentUser.getId());
-        }
-
-        if (orders.isEmpty()) {
-            throw new OrderNotFoundException("No hay órdenes disponibles");
+            orders = orderRepository.findByUserId(currentUser.getId(), pageable);
         }
 
         return orders;
@@ -85,6 +92,32 @@ public class OrderService {
             throw new IllegalArgumentException("La orden debe contener al menos un producto");
         }
 
+        // ========== VALIDACIONES DE LOS NUEVOS CAMPOS ==========
+        
+        if (order.getPhone() == null || order.getPhone().trim().isEmpty()) {
+            throw new IllegalArgumentException("El teléfono es obligatorio");
+        }
+
+        if (order.getAddress() == null || order.getAddress().trim().isEmpty()) {
+            throw new IllegalArgumentException("La dirección es obligatoria");
+        }
+
+        if (order.getCity() == null || order.getCity().trim().isEmpty()) {
+            throw new IllegalArgumentException("La ciudad es obligatoria");
+        }
+
+        if (order.getPostalCode() == null || order.getPostalCode().trim().isEmpty()) {
+            throw new IllegalArgumentException("El código postal es obligatorio");
+        }
+
+        if (order.getPaymentMethod() == null) {
+            throw new IllegalArgumentException("El método de pago es obligatorio");
+        }
+
+        // addressLine2 es OPCIONAL, no se valida
+
+        // =======================================================
+
         double total = 0.0;
 
         // Verificar que cada item exista y esté en stock.
@@ -99,7 +132,13 @@ public class OrderService {
 
             //Se calcula el subtotal de la orden y se actualiza el subtotal.
             double precioUnitario = item.getPrice() * (1 - item.getDiscount() / 100.0); //con descuento
+            // Truncar a 2 decimales (siempre a favor del comprador, sin redondear hacia arriba)
+            precioUnitario = Math.floor(precioUnitario * 100.0) / 100.0;
+            
             double subtotal = precioUnitario * orderItem.getCantidad();
+            // Truncar subtotal a 2 decimales (siempre a favor del comprador)
+            subtotal = Math.floor(subtotal * 100.0) / 100.0;
+            
             orderItem.setPrecioUnitario(precioUnitario);
             orderItem.setSubtotal(subtotal);
             orderItem.setOrder(order);
@@ -115,11 +154,30 @@ public class OrderService {
             total += subtotal;
         }
 
+        // Truncar el total final a 2 decimales (siempre a favor del comprador)
+        total = Math.floor(total * 100.0) / 100.0;
+
         //Pasar el total y actualizar el estado de la orden
-        order.setOrderStatus(Order.OrderStatus.PENDIENTE);
-        order.setImporteTotal(total); 
+        order.setOrderStatus(OrderStatus.PENDIENTE);
+        order.setImporteTotal(total);
+        order.setOrderDate(LocalDateTime.now()); // Se genera automáticamente
 
         // Guardar la orden en base.
+        return orderRepository.save(order);
+    }
+
+    @Transactional
+    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        if (currentUser.getRole() != Role.ADMIN) {
+            throw new OrderAccessDeniedException("Solo los administradores pueden actualizar el estado de las órdenes");
+        }
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        order.setOrderStatus(newStatus);
         return orderRepository.save(order);
     }
 }

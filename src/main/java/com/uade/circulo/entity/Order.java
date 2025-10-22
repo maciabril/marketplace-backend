@@ -5,11 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.uade.circulo.enums.PaymentMethod;
+
+import com.uade.circulo.enums.OrderStatus;
 
 @Entity
 @Table(name = "orders")
@@ -17,14 +21,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
-
-    //TO-DO: preguntar si está bien como public, o si debe ser privado.
-    public enum OrderStatus {  
-        PENDIENTE,
-        PROCESANDO,
-        COMPLETADO,
-        CANCELADO
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +41,35 @@ public class Order {
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
+    
+    @Column(nullable = false)
+    private LocalDateTime orderDate;
+
+    @Column(nullable = false, length = 100)
+    private String phone;
+
+    @Column(nullable = false, length = 500)
+    private String address;
+
+    @Column(length = 500)
+    private String addressLine2;  // OPCIONAL (departamento, piso, etc.)
+
+    @Column(nullable = false, length = 100)
+    private String city;
+
+    @Column(nullable = false, length = 20)
+    private String postalCode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod;
+
+    @PrePersist
+    protected void onCreate() {
+        if (orderDate == null) {
+            orderDate = LocalDateTime.now();
+        }
+    }
 
     public double getImporteTotal(){
         return importeTotal;
