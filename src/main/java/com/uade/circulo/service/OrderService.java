@@ -50,7 +50,7 @@ public class OrderService {
         if (currentUser.getRole() == Role.ADMIN) {
             orders = orderRepository.findAll(pageable);
         } else {
-            orders = orderRepository.findByUserId(currentUser.getId(), pageable);
+            orders = orderRepository.findByUser_Id(currentUser.getId(), pageable);
         }
 
         return orders;
