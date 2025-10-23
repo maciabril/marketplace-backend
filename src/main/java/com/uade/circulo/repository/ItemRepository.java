@@ -23,8 +23,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("SELECT i FROM Item i WHERE " +
            "(:name IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
            "(:category IS NULL OR i.category = :category) AND " +
-           "(:minPrice IS NULL OR i.price >= :minPrice) AND " +
-           "(:maxPrice IS NULL OR i.price <= :maxPrice) AND " +
+           "(:minPrice IS NULL OR (i.price * (1 - i.discount / 100.0)) >= :minPrice) AND " +
+           "(:maxPrice IS NULL OR (i.price * (1 - i.discount / 100.0)) <= :maxPrice) AND " +
            "(:hasDiscount IS NULL OR (:hasDiscount = true AND i.discount > 0) OR (:hasDiscount = false)) AND " +
            "(:inStock IS NULL OR (:inStock = true AND i.stock > 0) OR (:inStock = false)) AND " +
            "i.status = :status " +
