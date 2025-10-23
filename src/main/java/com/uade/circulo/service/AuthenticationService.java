@@ -10,6 +10,7 @@ import com.uade.circulo.controller.auth.AuthenticationResponse;
 import com.uade.circulo.controller.auth.RegisterRequest;
 import com.uade.circulo.controller.config.JwtService;
 import com.uade.circulo.entity.User;
+import com.uade.circulo.entity.exceptions.BadRequestException;
 import com.uade.circulo.repository.UserRepository;
 import com.uade.circulo.enums.Role;
 
@@ -24,6 +25,13 @@ public class AuthenticationService {
         private final AuthenticationManager authenticationManager;
 
         public AuthenticationResponse register(RegisterRequest request) {
+                if (repository.findByEmail(request.getEmail()).isPresent()) {
+                        throw new BadRequestException("El email ya está registrado");
+                }
+                if (repository.findByUsername(request.getUsername()).isPresent()) {
+                        throw new BadRequestException("El nombre de usuario ya está en uso");
+                }
+
                 var user = User.builder()
                                 .firstName(request.getFirstname())
                                 .lastName(request.getLastname())
