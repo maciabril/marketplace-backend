@@ -27,7 +27,14 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
            "(:maxPrice IS NULL OR i.price <= :maxPrice) AND " +
            "(:hasDiscount IS NULL OR (:hasDiscount = true AND i.discount > 0) OR (:hasDiscount = false)) AND " +
            "(:inStock IS NULL OR (:inStock = true AND i.stock > 0) OR (:inStock = false)) AND " +
-           "i.status = :status")
+           "i.status = :status " +
+           "ORDER BY " +
+           "CASE WHEN :sortBy = 'price' AND :sortDirection = 'asc' THEN (i.price * (1 - i.discount / 100.0)) END ASC, " +
+           "CASE WHEN :sortBy = 'price' AND :sortDirection = 'desc' THEN (i.price * (1 - i.discount / 100.0)) END DESC, " +
+           "CASE WHEN :sortBy = 'name' AND :sortDirection = 'asc' THEN i.name END ASC, " +
+           "CASE WHEN :sortBy = 'name' AND :sortDirection = 'desc' THEN i.name END DESC, " +
+           "CASE WHEN :sortBy = 'id' AND :sortDirection = 'asc' THEN i.id END ASC, " +
+           "CASE WHEN :sortBy = 'id' AND :sortDirection = 'desc' THEN i.id END DESC")
     Page<Item> findByFilters(@Param("name") String name,
                              @Param("category") Category category,
                              @Param("minPrice") Double minPrice,
@@ -35,6 +42,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                              @Param("hasDiscount") Boolean hasDiscount,
                              @Param("inStock") Boolean inStock,
                              @Param("status") Status status,
+                             @Param("sortBy") String sortBy,
+                             @Param("sortDirection") String sortDirection,
                              Pageable pageable);
     
     Page<Item> findByStatus(Status status, Pageable pageable);
