@@ -1,6 +1,7 @@
 package com.uade.circulo.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,18 @@ public class AuthenticationService {
         private final AuthenticationManager authenticationManager;
 
         public AuthenticationResponse register(RegisterRequest request) {
+                if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+                        throw new BadRequestException("La contraseña no puede estar vacía.");
+                }
+                if (request.getFirstname() == null || request.getFirstname().trim().isEmpty()) {
+                        throw new BadRequestException("El nombre no puede estar vacío.");
+                }
+                if (request.getLastname() == null || request.getLastname().trim().isEmpty()) {
+                        throw new BadRequestException("El apellido no puede estar vacío.");
+                }
+                if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+                        throw new BadRequestException("El email no puede estar vacío.");
+                }
                 if (repository.findByEmail(request.getEmail()).isPresent()) {
                         throw new BadRequestException("El email ya está registrado");
                 }
@@ -49,18 +62,34 @@ public class AuthenticationService {
         }
 
         public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+                throw new BadRequestException("El email no puede estar vacío.");
+        }
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+                throw new BadRequestException("La contraseña no puede estar vacía.");
+        }
+
+        var userOptional = repository.findByEmail(request.getEmail());
+
+        if (userOptional.isEmpty()) {
+                throw new BadRequestException("Mail o contraseña incorrectos."); 
+        }
+
+        try {
                 authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(
                                                 request.getEmail(),
                                                 request.getPassword()));
+        } catch (BadCredentialsException e) {
+                throw new BadRequestException("Mail o contraseña incorrectos.");
+        }
+        var user = userOptional.get();
+        var jwtToken = jwtService.generateToken(user);
 
-                var user = repository.findByEmail(request.getEmail())
-                                .orElseThrow();
-                var jwtToken = jwtService.generateToken(user);
-                return AuthenticationResponse.builder()
-                                .accessToken(jwtToken)
-                                .role(user.getRole())
-                                .id(user.getId())
-                                .build();
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .role(user.getRole())
+                .id(user.getId())
+                .build();
         }
 }
