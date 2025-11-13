@@ -1,6 +1,7 @@
 package com.uade.circulo.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,18 +50,34 @@ public class AuthenticationService {
         }
 
         public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+                throw new BadRequestException("El email no puede estar vacío.");
+        }
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+                throw new BadRequestException("La contraseña no puede estar vacía.");
+        }
+
+        var userOptional = repository.findByEmail(request.getEmail());
+
+        if (userOptional.isEmpty()) {
+                throw new BadRequestException("Mail o contraseña incorrectos."); 
+        }
+
+        try {
                 authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(
                                                 request.getEmail(),
                                                 request.getPassword()));
+        } catch (BadCredentialsException e) {
+                throw new BadRequestException("Mail o contraseña incorrectos.");
+        }
+        var user = userOptional.get();
+        var jwtToken = jwtService.generateToken(user);
 
-                var user = repository.findByEmail(request.getEmail())
-                                .orElseThrow();
-                var jwtToken = jwtService.generateToken(user);
-                return AuthenticationResponse.builder()
-                                .accessToken(jwtToken)
-                                .role(user.getRole())
-                                .id(user.getId())
-                                .build();
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .role(user.getRole())
+                .id(user.getId())
+                .build();
         }
 }
