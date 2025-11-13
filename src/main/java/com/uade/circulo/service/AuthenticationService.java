@@ -26,6 +26,18 @@ public class AuthenticationService {
         private final AuthenticationManager authenticationManager;
 
         public AuthenticationResponse register(RegisterRequest request) {
+                if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+                        throw new BadRequestException("La contraseña no puede estar vacía.");
+                }
+                if (request.getFirstname() == null || request.getFirstname().trim().isEmpty()) {
+                        throw new BadRequestException("El nombre no puede estar vacío.");
+                }
+                if (request.getLastname() == null || request.getLastname().trim().isEmpty()) {
+                        throw new BadRequestException("El apellido no puede estar vacío.");
+                }
+                if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+                        throw new BadRequestException("El email no puede estar vacío.");
+                }
                 if (repository.findByEmail(request.getEmail()).isPresent()) {
                         throw new BadRequestException("El email ya está registrado");
                 }
