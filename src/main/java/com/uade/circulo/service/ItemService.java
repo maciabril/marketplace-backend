@@ -81,7 +81,12 @@ public class ItemService {
         if (itemUpdateDto.getDescription() != null) item.setDescription(itemUpdateDto.getDescription());
         if (itemUpdateDto.getPrice() != null) item.setPrice(itemUpdateDto.getPrice());
         if (itemUpdateDto.getStatus() != null) item.setStatus(itemUpdateDto.getStatus());
-        if (itemUpdateDto.getStock() != null) item.setStock(itemUpdateDto.getStock());
+        if (itemUpdateDto.getStock() != null) {
+            if (item.getStock() == 0 && itemUpdateDto.getStock() > 0) {
+                item.setStatus(Status.PUBLISHED);
+            }
+            item.setStock(itemUpdateDto.getStock());
+        }
         if (itemUpdateDto.getDiscount() != null) item.setDiscount(itemUpdateDto.getDiscount());
         if (itemUpdateDto.getCategory() != null) item.setCategory(itemUpdateDto.getCategory());
         if (itemUpdateDto.getImageName() != null) item.setImageName(itemUpdateDto.getImageName());
